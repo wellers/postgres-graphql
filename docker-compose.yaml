@@ -1,0 +1,32 @@
+name: postgres-graphql
+services:
+  postgres:
+    container_name: postgres
+    build: ./postgres
+    ports:
+      - 5432:5432
+    restart: on-failure
+    volumes:
+      - ~/temp:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+  graphql:
+    container_name: graphql
+    build: ./graphql
+    ports:
+      - 4000:80
+    environment:
+      - POSTGRES_HOST=192.168.50.101
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_PORT=5432
+    volumes:
+      - ./graphql/lib:/app/lib
+    restart: on-failure
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    command: [ "yarn", "start:dev" ]

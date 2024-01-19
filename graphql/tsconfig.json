@@ -1,0 +1,15 @@
+{
+	"extends": "@tsconfig/node18/tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": "./",
+		"noImplicitAny": false,
+		"resolveJsonModule": true,
+		"lib": ["es2016", "dom"],
+		"sourceMap": true,
+		"esModuleInterop": true
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"include": ["lib"]
+}
