@@ -1,7 +1,5 @@
-name: postgres-graphql
 services:
   postgres:
-    container_name: postgres
     build: ./postgres
     ports:
       - 5432:5432
@@ -12,7 +10,6 @@ services:
       - POSTGRES_PASSWORD=password
       - PGDATA=/var/lib/postgresql/data/pgdata
   graphql:
-    container_name: graphql
     build: ./graphql
     ports:
       - 4000:80
