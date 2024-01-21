@@ -7,16 +7,22 @@
 		"style": "eslint /app/lib/**/*.ts"
 	},
 	"dependencies": {
+		"@graphql-tools/schema": "10.0.2",
+		"@graphql-tools/utils": "10.0.12",
 		"@tsconfig/node18": "1.0.1",
 		"apollo-server-core": "3.11.1",
 		"apollo-server-express": "3.10.3",
 		"eslint": "8.25.0",
 		"express": "4.18.2",
 		"graphql": "16.6.0",
+		"lodash": "4.17.21",
 		"postgres": "3.4.3",
 		"ts-node": "10.9.1",
 		"ts-node-dev": "2.0.0",
 		"typescript": "4.8.3"
 	},
-	"packageManager": "yarn@3.3.1"
+	"packageManager": "yarn@3.3.1",
+	"devDependencies": {
+		"@types/lodash": "^4.14.202"
+	}
 }

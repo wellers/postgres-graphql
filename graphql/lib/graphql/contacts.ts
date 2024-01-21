@@ -3,11 +3,9 @@ import { mapKeyResolver } from "./mapKeyResolver";
 import sql from "../db";
 
 export const typeDefs = gql`
-	type Query	
-
 	extend type Query {
 		contacts: contacts_query
-	}	
+	}
 
 	type contacts_query
 	
@@ -15,7 +13,8 @@ export const typeDefs = gql`
 		id: ID!,
 		title: String!,
 		forename: String!,
-		surname: String!
+		surname: String!,
+		todos: [todo!]!
 	}
 
 	input contacts_find_filter {
@@ -46,8 +45,6 @@ export const resolvers = {
 			const { search_term, page_number, results_per_page } = filter;
 			const start = (page_number - 1) * results_per_page;
 			
-			const total_results_count = (await sql`SELECT COUNT(contact_key) FROM contacts`).at(0)?.count;
-
 			const docs = await sql`SELECT * FROM contacts ${
 				search_term.length > 0 
 				? sql`WHERE forename LIKE ${"%" + search_term + "%"} OR surname LIKE ${"%" + search_term + "%"}`
@@ -58,12 +55,15 @@ export const resolvers = {
 				success: true,
 				message: 'Records matching filter.',
 				docs: docs.slice(start, results_per_page),
-				total_results_count,
+				total_results_count: docs.length,
 				results_per_page
 			};
 		}
 	},
 	contact: {
-		id: mapKeyResolver("contact_key")
-	},
+		id: mapKeyResolver("contact_key"),
+		async todos({ contact_key }, args, context, info) {
+			return await sql`SELECT * FROM contact_todos WHERE contact_fkey = ${contact_key}`;	
+		}
+	}
 }

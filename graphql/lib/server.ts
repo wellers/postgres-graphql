@@ -1,7 +1,7 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { typeDefs, resolvers } from "./graphql/schema"
+import schemaLoader from "./schemaLoader";
 
 const startDate = Date.now();
 
@@ -16,9 +16,10 @@ async function boot() {
 		res.json({ start: startDate });
 	});
 
+	const schema = await schemaLoader({ paths: ["/app/lib/graphql"] });
+
 	const server = new ApolloServer({
-		typeDefs,
-		resolvers,
+		schema,
 		context: () => ({}),
 		plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 		// https://github.com/apollographql/graphql-tools/issues/480#issuecomment-448057551
