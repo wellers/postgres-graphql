@@ -85,13 +85,13 @@ export const resolvers = {
 			
 			const docs = await sql`SELECT * FROM contacts ${
 				search_term.length > 0 
-				? sql`WHERE forename LIKE ${"%" + search_term + "%"} OR surname LIKE ${"%" + search_term + "%"}`
+				? sql`WHERE forename LIKE ${`%${search_term}%`} OR surname LIKE ${`%${search_term}%`}`
 				: sql``
 			}`;
 
 			return {
 				success: true,
-				message: 'Records matching filter.',
+				message: "Records matching filter.",
 				docs: docs.slice(start, results_per_page),
 				total_results_count: docs.length,
 				results_per_page
