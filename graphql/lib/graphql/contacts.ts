@@ -1,6 +1,5 @@
 import { gql } from "apollo-server-express";
 import { mapKeyResolver } from "./mapKeyResolver";
-import sql from "../db";
 
 export const typeDefs = gql`
 	extend type Query {
@@ -79,7 +78,7 @@ export const resolvers = {
 		contacts: () => {return {}; }
 	},
 	contacts_query: {
-		async contacts_find(parent, { filter }, context, info) {
+		async contacts_find(parent, { filter }, { sql }, info) {
 			const { search_term, page_number, results_per_page } = filter;
 			const start = (page_number - 1) * results_per_page;
 			
@@ -99,12 +98,12 @@ export const resolvers = {
 		}
 	},
 	contacts_mutation: {
-		async contacts_insert(parent, { input: { contacts } }, context, info) {
+		async contacts_insert(parent, { input: { contacts } },  { sql }, info) {
 			const { count } = await sql`INSERT INTO contacts ${ sql(contacts, "title", "forename", "surname") }`;
 
 			return { success: true, message: `Contact(s) - ${count} have been added` };
 		},
-		async contacts_remove(parent, { input }, context, info) {
+		async contacts_remove(parent, { input },  { sql }, info) {
 			const { count } = await sql`DELETE FROM contacts ${
 				input.id 
 				? sql`WHERE contact_id IN ${sql(input.id)}`
@@ -116,7 +115,7 @@ export const resolvers = {
 	},
 	contact: {
 		id: mapKeyResolver("contact_id"),
-		async todos({ contact_id }, args, context, info) {
+		async todos({ contact_id }, args,  { sql }, info) {
 			return await sql`SELECT * FROM contact_todos WHERE contact_id = ${contact_id}`;	
 		}
 	}

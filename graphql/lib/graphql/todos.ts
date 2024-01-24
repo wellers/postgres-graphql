@@ -1,6 +1,5 @@
 import { gql } from "apollo-server-express";
 import { mapKeyResolver } from "./mapKeyResolver";
-import sql from "../db";
 
 export const typeDefs = gql`
 	extend type Query {
@@ -72,7 +71,7 @@ export const resolvers = {
 		todos: () => { return {}; }
 	},
 	todos_query: {
-		async todos_find(parent, { filter }, context, info) {
+		async todos_find(parent, { filter },  { sql }, info) {
 			const { contact_id } = filter;
 
 			const docs = await sql`SELECT * FROM contact_todos ${
@@ -89,12 +88,12 @@ export const resolvers = {
 		}
 	},
 	todos_mutation: {
-		async todos_insert(parent, { input: { todos } }, context, info) {
+		async todos_insert(parent, { input: { todos } },  { sql }, info) {
 			const { count } = await sql`INSERT INTO contact_todos ${ sql(todos, "contact_id", "description") }`;
 
 			return { success: true, message: `Todo(s) - ${count} have been added` };
 		},
-		async todos_remove(parent, { input }, context, info) {
+		async todos_remove(parent, { input },  { sql }, info) {
 			const { count } = await sql`DELETE FROM contact_todos ${
 				input.id 
 				? sql`WHERE todo_id IN ${sql(input.id)}`

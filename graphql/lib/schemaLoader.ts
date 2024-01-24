@@ -2,7 +2,7 @@ import { readdir } from "fs/promises";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import lodash from "lodash";
 import { DocumentNode } from "graphql";
-import { IResolvers } from '@graphql-tools/utils';
+import { IResolvers } from "@graphql-tools/utils";
 
 async function readdirRegex(dir: string, regex: RegExp) {
 	const files = await readdir(dir);
