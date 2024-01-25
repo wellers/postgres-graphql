@@ -1,4 +1,4 @@
-import postgres from "postgres";
+import knex from "knex";
 
 const {
 	POSTGRES_HOST,
@@ -8,12 +8,15 @@ const {
 	POSTGRES_PORT
 } = process.env;
 
-const sql = postgres({
-	host: POSTGRES_HOST,
-	port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
-	database: POSTGRES_DB,
-	password: POSTGRES_PASSWORD,
-	username: POSTGRES_USER,		
+const database = knex({
+	client: "pg",
+	connection: {
+		host: POSTGRES_HOST,
+		port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
+		database: POSTGRES_DB,
+		password: POSTGRES_PASSWORD,
+		user: POSTGRES_USER
+	}
 });
 
-export default sql;
+export default database;

@@ -71,14 +71,16 @@ export const resolvers = {
 		todos: () => { return {}; }
 	},
 	todos_query: {
-		async todos_find(parent, { filter },  { sql }, info) {
+		async todos_find(parent, { filter }, { knex }, info) {
 			const { contact_id } = filter;
 
-			const docs = await sql`SELECT * FROM contact_todos ${
-				contact_id
-				? sql`WHERE contact_id = ${contact_id}`
-				: sql``
-			}`; 		
+			let query = knex("contact_todos");
+			
+			query = contact_id
+				? query.where("contact_id", contact_id)
+				: query;
+
+			const docs = await query;
 
 			return {
 				success: true,
@@ -88,19 +90,21 @@ export const resolvers = {
 		}
 	},
 	todos_mutation: {
-		async todos_insert(parent, { input: { todos } },  { sql }, info) {
-			const { count } = await sql`INSERT INTO contact_todos ${ sql(todos, "contact_id", "description") }`;
+		async todos_insert(parent, { input: { todos } }, { knex }, info) {
+			const inserted = await knex("contact_todos").insert(todos);
 
-			return { success: true, message: `Todo(s) - ${count} have been added` };
+			return { success: true, message: `Todo(s) - ${inserted.rowCount} have been added` };
 		},
-		async todos_remove(parent, { input },  { sql }, info) {
-			const { count } = await sql`DELETE FROM contact_todos ${
-				input.id 
-				? sql`WHERE todo_id IN ${sql(input.id)}`
-				: sql``
-			}`;
+		async todos_remove(parent, { input }, { knex }, info) {
+			let query = knex("contact_todos");
 
-			return { success: true, message: `Todo(s) - ${count} have been removed.` };
+			query = input.id
+				? query.whereIn("todo_id", input.id)
+				: query;
+
+			const deletedCount = await query.del();
+
+			return { success: true, message: `Todo(s) - ${deletedCount} have been removed.` };
 		}
 	},
 	todo: {

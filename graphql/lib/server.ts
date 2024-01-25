@@ -2,7 +2,7 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import schemaLoader from "./schemaLoader";
-import sql from "./db";
+import knex from "./db";
 
 const startDate = Date.now();
 
@@ -21,7 +21,7 @@ async function boot() {
 
 	const server = new ApolloServer({
 		schema,
-		context: () => ({ sql }),
+		context: () => ({ knex }),
 		plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 		// https://github.com/apollographql/graphql-tools/issues/480#issuecomment-448057551
 		formatError: function (err) {

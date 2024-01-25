@@ -78,15 +78,17 @@ export const resolvers = {
 		contacts: () => {return {}; }
 	},
 	contacts_query: {
-		async contacts_find(parent, { filter }, { sql }, info) {
+		async contacts_find(parent, { filter }, { knex }, info) {
 			const { search_term, page_number, results_per_page } = filter;
 			const start = (page_number - 1) * results_per_page;
-			
-			const docs = await sql`SELECT * FROM contacts ${
-				search_term.length > 0 
-				? sql`WHERE forename LIKE ${`%${search_term}%`} OR surname LIKE ${`%${search_term}%`}`
-				: sql``
-			}`;
+
+			let query = knex("contacts");
+
+			query = search_term.length > 0 
+					? query.whereLike("forename",`%${search_term}%`).orWhereLike("surname", `%${search_term}%`)
+					: query;
+
+			const docs = await query;
 
 			return {
 				success: true,
@@ -98,25 +100,27 @@ export const resolvers = {
 		}
 	},
 	contacts_mutation: {
-		async contacts_insert(parent, { input: { contacts } },  { sql }, info) {
-			const { count } = await sql`INSERT INTO contacts ${ sql(contacts, "title", "forename", "surname") }`;
+		async contacts_insert(parent, { input: { contacts } }, { knex }, info) {
+			const inserted = await knex("contacts").insert(contacts);
 
-			return { success: true, message: `Contact(s) - ${count} have been added` };
+			return { success: true, message: `Contact(s) - ${inserted.rowCount} has been added` };
 		},
-		async contacts_remove(parent, { input },  { sql }, info) {
-			const { count } = await sql`DELETE FROM contacts ${
-				input.id 
-				? sql`WHERE contact_id IN ${sql(input.id)}`
-				: sql``
-			}`;
+		async contacts_remove(parent, { input }, { knex }, info) {
+			let query = knex("contacts");
 
-			return { success: true, message: `Contact(s) - ${count} have been removed.` };
+			query = input.id
+				? query.whereIn("contact_id", input.id)
+				: query;
+			
+			const deletedCount = await query.del();
+
+			return { success: true, message: `Contact(s) - ${deletedCount} has been removed.` };
 		}
 	},
 	contact: {
 		id: mapKeyResolver("contact_id"),
-		async todos({ contact_id }, args,  { sql }, info) {
-			return await sql`SELECT * FROM contact_todos WHERE contact_id = ${contact_id}`;	
+		async todos({ contact_id }, args,  { knex }, info) {
+			return await knex("contact_todos").where("contact_id", contact_id)
 		}
 	}
 }
