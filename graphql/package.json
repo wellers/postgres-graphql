@@ -4,7 +4,8 @@
 	"scripts": {
 		"start": "ts-node --transpile-only lib/server.ts",
 		"start:dev": "tsnd --inspect=0.0.0.0:9229 --respawn --poll --debounce --transpile-only lib/server.ts",
-		"style": "eslint /app/lib/**/*.ts"
+		"style": "eslint /app/lib/**/*.ts",
+		"migrate": "knex migrate:latest --knexfile /app/lib/knexfile.ts"
 	},
 	"dependencies": {
 		"@graphql-tools/schema": "10.0.2",

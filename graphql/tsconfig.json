@@ -4,7 +4,7 @@
 		"baseUrl": "./",
 		"noImplicitAny": false,
 		"resolveJsonModule": true,
-		"lib": ["es2016", "dom"],
+		"lib": ["es2018", "dom"],
 		"sourceMap": true,
 		"esModuleInterop": true
 	},
