@@ -1,14 +1,30 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { verify } from "jsonwebtoken";
 import schemaLoader from "./schemaLoader";
 import knex from "./db";
+
+const {
+	JWT_SECRET
+} = process.env;
 
 const startDate = Date.now();
 
 process.on("unhandledRejection", function (e) {
 	process.exit(1);
 });
+
+function verifyToken(token) {
+    try {
+        if (token) {
+            return verify(token, JWT_SECRET ?? "")
+        }
+        return null
+    } catch {
+        return null
+    }
+}
 
 async function boot() {
 	const app = express();
@@ -21,7 +37,15 @@ async function boot() {
 
 	const server = new ApolloServer({
 		schema,
-		context: () => ({ knex }),
+		context: ({ req }) => {
+			const token = req.get("Authorization") || "";
+			const user = verifyToken(token.replace("Bearer ", ""));
+
+			return { 
+				knex, 
+				user
+			};
+		},
 		plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 		// https://github.com/apollographql/graphql-tools/issues/480#issuecomment-448057551
 		formatError: function (err) {

@@ -19,6 +19,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_PORT=5432
+      - JWT_SECRET=somereallylongsecretkey
     volumes:
       - ./graphql/lib:/app/lib
     restart: on-failure
