@@ -21,8 +21,8 @@ export const typeDefs = gql`
 	type auth_mutation
 
 	type user {
-		id: Int!
-		username: String!
+		id: Int!,
+		username: String!,
 		email: String!
 	}
 
@@ -31,8 +31,8 @@ export const typeDefs = gql`
 	}
 	
 	type auth_mutation {
-		signup (username: String!, email: String!, password: String!): String
-		login (email: String!, password: String!): String
+		signup(username: String!, email: String!, password: String!): String,
+		login(email: String!, password: String!): String
 	}
 `;
 
