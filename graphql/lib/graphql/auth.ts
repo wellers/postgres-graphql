@@ -41,7 +41,7 @@ export const resolvers = {
 		auth: () => { return {}; }
 	},
 	Mutation: {
-		auth: () => {return {}; }
+		auth: () => { return {}; }
 	},
 	auth_query: {
 		async me(parent, args, { knex, user }, info) {
