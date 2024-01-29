@@ -76,8 +76,6 @@ export const resolvers = {
 				throw new Error ("No user with that email.");
 			}
 
-			console.log(user);
-
 			const valid = await bcrypt.compare(password, user.password);
 
 			if (!valid) {
