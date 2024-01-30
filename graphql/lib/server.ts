@@ -15,6 +15,10 @@ process.on("unhandledRejection", function (e) {
 	process.exit(1);
 });
 
+process.on('uncaughtException', function (e) {
+	process.exit(1);
+});
+
 type UserToken = string | JwtPayload | null;
 
 function verifyToken(token: string): UserToken {

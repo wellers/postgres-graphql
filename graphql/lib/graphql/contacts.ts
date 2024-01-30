@@ -126,8 +126,8 @@ export const resolvers = {
 		}
 	},
 	contacts_mutation: {
-		async contacts_insert(parent, { input: { contacts } }: { input: ContactsInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
-			const inserted = await knex<Types.Contact>("contacts").insert<InsertedResult>(contacts);
+		async contacts_insert(parent, { input }: { input: ContactsInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
+			const inserted = await knex<Types.Contact>("contacts").insert<InsertedResult>(input.contacts);
 
 			return { success: true, message: `Contact(s) - ${inserted.rowCount} has been added` };
 		},

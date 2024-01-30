@@ -112,8 +112,8 @@ export const resolvers = {
 		}
 	},
 	todos_mutation: {
-		async todos_insert(parent, { input: { todos } }: { input: TodosInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
-			const inserted = await knex<Types.Todo>("contact_todos").insert<InsertedResult>(todos);
+		async todos_insert(parent, { input }: { input: TodosInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
+			const inserted = await knex<Types.Todo>("contact_todos").insert<InsertedResult>(input.todos);
 
 			return { success: true, message: `Todo(s) - ${inserted.rowCount} have been added` };
 		},
