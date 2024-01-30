@@ -23,7 +23,7 @@ declare module 'knex/types/tables.js' {
 	interface Tables {
 		contacts: Contact;
 		todos: Todo;
-		user: User
+		user: User;
 	}
 }
 
