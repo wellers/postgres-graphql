@@ -2,6 +2,8 @@ import { gql } from "apollo-server-express";
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 import { mapKeyResolver } from "./mapKeyResolver";
+import * as Types from "knex/types/tables.js";
+import { Knex } from "knex";
 
 const {
 	JWT_SECRET
@@ -36,6 +38,17 @@ export const typeDefs = gql`
 	}
 `;
 
+interface User {
+	id: string
+}
+
+type UserInsertResult = {
+	user_id: number;
+	email: string;
+}
+
+type MeResult = Omit<Types.User, "password">
+
 export const resolvers = {
 	Query: {
 		auth: () => { return {}; }
@@ -44,17 +57,17 @@ export const resolvers = {
 		auth: () => { return {}; }
 	},
 	auth_query: {
-		async me(parent, args, { knex, user }, info) {
+		async me(parent, args, { knex, user }: { knex: Knex, user: User}, info): Promise<MeResult> {
 			if (!user) {
 				throw new Error("You are not authenticated!");
 			}
 
-			return await knex("users").where("user_id", user.id).first();
+			return await knex<Types.User>("users").where("user_id", user.id).first<MeResult>();
 		}
 	},
 	auth_mutation: {
-		async signup(parent, { username, email, password }, { knex }, info) {
-			const user = await knex("users").insert({
+		async signup(parent, { username, email, password }: { username: string, email: string, password: string }, { knex }: { knex: Knex }, info): Promise<string> {
+			const user = await knex<Types.User>("users").insert<UserInsertResult>({
 				username,
 				email,
 				password: await bcrypt.hash(password, 10)
@@ -69,8 +82,8 @@ export const resolvers = {
 				}
 			);
 		},
-		async login(parent, { email, password }, { knex }, info) {
-			const user = await knex("users").where("email", email).first();
+		async login(parent, { email, password }: { email: string, password: string }, { knex }: { knex: Knex }, info): Promise<string> {
+			const user = await knex<Types.User>("users").where("email", email).first();
 
 			if (!user) {
 				throw new Error ("No user with that email.");

@@ -1,5 +1,7 @@
 import { gql } from "apollo-server-express";
 import { mapKeyResolver } from "./mapKeyResolver";
+import * as Types from "knex/types/tables.js";
+import { Knex } from "knex";
 
 export const typeDefs = gql`
 	extend type Query {
@@ -63,6 +65,26 @@ export const typeDefs = gql`
 	}
 `;
 
+type TodosFindFilter = {
+	contact_id: number;
+}
+
+type TodosFindResult = {
+	success: boolean;
+	message: string;
+	docs: Types.Todo[];
+}
+
+type TodoInsertInput = Omit<Types.Todo, "todo_id">;
+
+type TodosInsertInput = {
+	todos: TodoInsertInput[];
+};
+
+type TodosRemoveInput = {
+	id: number[];
+}
+
 export const resolvers = {
 	Query: {
 		todos: () => { return {}; }
@@ -71,7 +93,7 @@ export const resolvers = {
 		todos: () => { return {}; }
 	},
 	todos_query: {
-		async todos_find(parent, { filter }, { knex }, info) {
+		async todos_find(parent, { filter }: { filter: TodosFindFilter}, { knex }: { knex: Knex }, info): Promise<TodosFindResult> {
 			const { contact_id } = filter;
 
 			let query = knex("contact_todos");
@@ -90,12 +112,12 @@ export const resolvers = {
 		}
 	},
 	todos_mutation: {
-		async todos_insert(parent, { input: { todos } }, { knex }, info) {
-			const inserted = await knex("contact_todos").insert(todos);
+		async todos_insert(parent, { input: { todos } }: { input: TodosInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
+			const inserted = await knex<Types.Todo>("contact_todos").insert<InsertedResult>(todos);
 
 			return { success: true, message: `Todo(s) - ${inserted.rowCount} have been added` };
 		},
-		async todos_remove(parent, { input }, { knex }, info) {
+		async todos_remove(parent, { input }: { input: TodosRemoveInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
 			let query = knex("contact_todos");
 
 			query = input.id

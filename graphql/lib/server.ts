@@ -1,7 +1,7 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 import schemaLoader from "./schemaLoader";
 import knex from "./db";
 
@@ -15,7 +15,9 @@ process.on("unhandledRejection", function (e) {
 	process.exit(1);
 });
 
-function verifyToken(token) {
+type UserToken = string | JwtPayload | null;
+
+function verifyToken(token: string): UserToken {
     try {
         if (token) {
             return verify(token, JWT_SECRET ?? "")

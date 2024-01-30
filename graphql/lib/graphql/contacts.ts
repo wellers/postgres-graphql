@@ -1,5 +1,7 @@
 import { gql } from "apollo-server-express";
 import { mapKeyResolver } from "./mapKeyResolver";
+import * as Types from "knex/types/tables.js";
+import { Knex } from "knex";
 
 export const typeDefs = gql`
 	extend type Query {
@@ -70,19 +72,43 @@ export const typeDefs = gql`
 	}
 `;
 
+type ContactsFindFilter = {
+	search_term: string;
+	page_number: number;
+	results_per_page: number;
+}
+
+type ContactsFindResult = {
+	success: boolean;
+	message: string;
+	docs: Types.Contact[];
+	total_results_count: number;
+	results_per_page: number;
+}
+
+type ContactsInsertInput = {
+	contacts: ContactInsertInput[];
+}
+
+type ContactInsertInput = Omit<Types.Contact, "contact_id">
+
+type ContactsRemoveInput = {
+	id: number[];
+}
+
 export const resolvers = {
 	Query: {
 		contacts: () => { return {}; }
 	},
 	Mutation: {
-		contacts: () => {return {}; }
+		contacts: () => { return {}; }
 	},
 	contacts_query: {
-		async contacts_find(parent, { filter }, { knex }, info) {
+		async contacts_find(parent, { filter }: { filter: ContactsFindFilter }, { knex }: { knex: Knex }, info): Promise<ContactsFindResult> {
 			const { search_term, page_number, results_per_page } = filter;
 			const start = (page_number - 1) * results_per_page;
 
-			let query = knex("contacts");
+			let query = knex<Types.Contact>("contacts");
 
 			query = search_term.length > 0 
 					? query.whereLike("forename",`%${search_term}%`).orWhereLike("surname", `%${search_term}%`)
@@ -100,13 +126,13 @@ export const resolvers = {
 		}
 	},
 	contacts_mutation: {
-		async contacts_insert(parent, { input: { contacts } }, { knex }, info) {
-			const inserted = await knex("contacts").insert(contacts);
+		async contacts_insert(parent, { input: { contacts } }: { input: ContactsInsertInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
+			const inserted = await knex<Types.Contact>("contacts").insert<InsertedResult>(contacts);
 
 			return { success: true, message: `Contact(s) - ${inserted.rowCount} has been added` };
 		},
-		async contacts_remove(parent, { input }, { knex }, info) {
-			let query = knex("contacts");
+		async contacts_remove(parent, { input }: { input: ContactsRemoveInput }, { knex }: { knex: Knex }, info): Promise<ApiResponse> {
+			let query = knex<Types.Contact>("contacts");
 
 			query = input.id
 				? query.whereIn("contact_id", input.id)
@@ -119,7 +145,7 @@ export const resolvers = {
 	},
 	contact: {
 		id: mapKeyResolver("contact_id"),
-		async todos({ contact_id }, args,  { knex }, info) {
+		async todos({ contact_id }: { contact_id: number }, args,  { knex }: { knex: Knex }, info): Promise<Types.Todo[]> {
 			return await knex("contact_todos").where("contact_id", contact_id)
 		}
 	}
