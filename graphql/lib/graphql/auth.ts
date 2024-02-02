@@ -1,4 +1,3 @@
-import { gql } from "apollo-server-express";
 import bcrypt from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 import { mapKeyResolver } from "./mapKeyResolver";
@@ -9,7 +8,7 @@ const {
 	JWT_SECRET
 } = process.env;
 
-export const typeDefs = gql`
+export const typeDefs = `#graphql
 	extend type Query {
 		auth: auth_query
 	}

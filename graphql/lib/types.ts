@@ -1,4 +1,4 @@
-declare module 'knex/types/tables.js' {
+declare module "knex/types/tables.js" {
 	interface Contact {
 		contact_id: number;
 		title: string;

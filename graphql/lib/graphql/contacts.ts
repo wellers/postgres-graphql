@@ -1,9 +1,8 @@
-import { gql } from "apollo-server-express";
 import { mapKeyResolver } from "./mapKeyResolver";
 import * as Types from "knex/types/tables.js";
 import { Knex } from "knex";
 
-export const typeDefs = gql`
+export const typeDefs = `#graphql
 	extend type Query {
 		contacts: contacts_query
 	}
