@@ -28,3 +28,11 @@ services:
     links:
       - postgres
     command: [ "yarn", "start:dev" ]
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 82:80
+    restart: on-failure
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=paulwelbourne@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password
